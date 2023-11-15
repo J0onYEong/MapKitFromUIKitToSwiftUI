@@ -3,30 +3,6 @@ import UIKit
 import MapKit
 
 
-// MARK: - Test Annotation(UIView)
-class TestAnnotation: MKAnnotationView {
-    
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        
-        frame = CGRect(x: 0, y: 0, width: 25, height: 25)
-        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
-        setUp()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented!")
-    }
-    
-    private func setUp() {
-        let imageView = UIImageView(image: UIImage(systemName: "chevron.down.circle.fill"))
-        imageView.frame = bounds
-        self.addSubview(imageView)
-    }
-}
-
-
-
 // MARK: - Coordinator
 class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
     
@@ -39,22 +15,25 @@ class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
     
     private func registerAnnotation() {
         guard let mapView = self.mapView else { return }
-        mapView.register(TestAnnotation.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(TestAnnotation.self))
+        mapView.register(SchoolAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
     }
     
     //TODO: SwiftUI뷰를 등록할 수 있도록 구현
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        switch annotation {
-        case is MKPointAnnotation:
-            return TestAnnotation(annotation: annotation, reuseIdentifier: NSStringFromClass(TestAnnotation.self))
+        
+        let someAnnotation = annotation as! AnnotationType
+        
+        switch someAnnotation.annotationType {
+        case NSStringFromClass(SchoolAnnotation.self):
+            return SchoolAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
+        case NSStringFromClass(RestaurantAnnotation.self):
+            return RestaurantAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(RestaurantAnnotationView.self))
         default:
             return nil
         }
     }
 }
-
-
 
 // MARK: - UIViewRepresentable
 struct MapkitView: UIViewRepresentable {
@@ -69,11 +48,18 @@ struct MapkitView: UIViewRepresentable {
         context.coordinator.mapView = mapView
         
         // Annotation추가
-        let testAnnotation = MKPointAnnotation()
-        testAnnotation.title = "Hongik Univ"
-        testAnnotation.coordinate = CLLocationCoordinate2D(latitude: 37.5507563, longitude: 126.9254901)
+        let annotation1 = SchoolAnnotation(coordinate: CLLocationCoordinate2D(latitude: 37.5507563, longitude: 126.9254901))
+        annotation1.title = "Hongik"
+        annotation1.subtitle = "School"
         
-        mapView.addAnnotation(testAnnotation)
+        let annotation2 = RestaurantAnnotation(coordinate: CLLocationCoordinate2D(latitude: 37.5474489, longitude: 126.922586))
+        annotation2.title = "Ramen Truck"
+        annotation2.subtitle = "Restaurant"
+        
+        mapView.addAnnotations([
+            annotation1,
+            annotation2
+        ])
         
         return mapView
     }
@@ -82,9 +68,7 @@ struct MapkitView: UIViewRepresentable {
         MkMapViewCoordinator()
     }
     
-    func updateUIView(_ uiView: MKMapView, context: Context) {
-        
-    }
+    func updateUIView(_ uiView: MKMapView, context: Context) { }
 }
 
 public struct MapKitViewView: View {
