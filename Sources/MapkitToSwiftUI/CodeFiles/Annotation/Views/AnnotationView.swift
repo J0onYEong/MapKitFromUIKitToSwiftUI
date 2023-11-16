@@ -5,7 +5,6 @@
 //  Created by 최준영 on 2023/11/16.
 //
 
-import SwiftUI
 import MapKit
 
 // MARK: - SchoolAnnotation

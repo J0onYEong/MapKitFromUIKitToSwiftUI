@@ -4,7 +4,7 @@ import MapKit
 
 
 // MARK: - Coordinator
-class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
+internal class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
     
     var mapView: MKMapView?
     
@@ -16,19 +16,22 @@ class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
     private func registerAnnotation() {
         guard let mapView = self.mapView else { return }
         mapView.register(SchoolAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
+        mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(RestaurantAnnotationView.self))
     }
     
     //TODO: SwiftUI뷰를 등록할 수 있도록 구현
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        let someAnnotation = annotation as! AnnotationType
+        let someAnnotation = annotation as! AnnotationClassType
         
-        switch someAnnotation.annotationType {
+        switch someAnnotation.identifier {
         case NSStringFromClass(SchoolAnnotation.self):
             return SchoolAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
         case NSStringFromClass(RestaurantAnnotation.self):
             return RestaurantAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(RestaurantAnnotationView.self))
+        case NSStringFromClass(CIAnnotationWithSwiftUI.self):
+            return CIAnnotationViewWithSwiftUIView(annotation: annotation, reuseIdentifier: NSStringFromClass(CIAnnotationViewWithSwiftUIView.self))
         default:
             return nil
         }
@@ -36,7 +39,7 @@ class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
 }
 
 // MARK: - UIViewRepresentable
-struct MapkitView: UIViewRepresentable {
+internal struct MapkitView: UIViewRepresentable {
     
     typealias UIViewType = MKMapView
     
@@ -47,7 +50,7 @@ struct MapkitView: UIViewRepresentable {
         mapView.delegate = context.coordinator
         context.coordinator.mapView = mapView
         
-        // Annotation추가
+        // Annotation Data추가
         let annotation1 = SchoolAnnotation(coordinate: CLLocationCoordinate2D(latitude: 37.5507563, longitude: 126.9254901))
         annotation1.title = "Hongik"
         annotation1.subtitle = "School"
@@ -56,10 +59,14 @@ struct MapkitView: UIViewRepresentable {
         annotation2.title = "Ramen Truck"
         annotation2.subtitle = "Restaurant"
         
+        let annotation3 = CIAnnotationWithSwiftUI(coordinate: CLLocationCoordinate2D(latitude: 37.557527, longitude: 126.9244669), imageName: "japan_street")
+        
         mapView.addAnnotations([
             annotation1,
-            annotation2
+            annotation2,
+            annotation3
         ])
+        
         
         return mapView
     }
@@ -71,20 +78,16 @@ struct MapkitView: UIViewRepresentable {
     func updateUIView(_ uiView: MKMapView, context: Context) { }
 }
 
-public struct MapKitViewView: View {
-    
+public struct CJMapkitView: View {
     public init() { }
-    
+
     public var body: some View {
         MapkitView()
     }
 }
 
-
-
-
 #Preview {
     VStack {
-        MapkitView()
+        CJMapkitView()
     }
 }

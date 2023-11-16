@@ -1,0 +1,27 @@
+[Add] SwiftUI View Annotation구현 & AnnotationClassType 프로토콜 추가
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Your branch is up to date with 'main/main'.
+#
+# Changes to be committed:
+#	new file:   Package.resolved
+#	modified:   Package.swift
+#	renamed:    Sources/MapkitToSwiftUI/Annotation/Annotation.swift -> Sources/MapkitToSwiftUI/CodeFiles/Annotation/Annotation/TestAnnotations.swift
+#	renamed:    Sources/MapkitToSwiftUI/Annotation/Views/AnnotationView.swift -> Sources/MapkitToSwiftUI/CodeFiles/Annotation/Views/AnnotationView.swift
+#	new file:   Sources/MapkitToSwiftUI/CodeFiles/Annotation/Views/SwiftUIAnnotationView.swift
+#	renamed:    Sources/MapkitToSwiftUI/MapkitToSwiftUI.swift -> Sources/MapkitToSwiftUI/CodeFiles/MapkitToSwiftUI.swift
+#	new file:   Sources/MapkitToSwiftUI/CodeFiles/Protocol/AnnotationProtocol.swift
+#	deleted:    Sources/MapkitToSwiftUI/Protocol/AnnotationProtocol.swift
+#	new file:   Sources/MapkitToSwiftUI/Resources/japanStreet.jpg
+#
+Add : Annotation구현 사항 추가
+
+AnnotationClassType으로 MKAnnotation 인스턴스를 생성할 수 있다.
+identifier를 가져 타입별로 구분된 MKAnnotationView를 화면에 표실할 수 있다.
+UIHostingController를 사용해 SwiftUI뷰를 AnnotationView처럼 사용되도록 구현하였다.
+
+- 회고 
+    이유는 모르겠으나 Resource의 파일을 인지하지 못해 Bundle.module이 생성되지않아 고초를 겪었다.
+    Bundle.module은 패키지에 리소스파일이 적어도 하나이상 존재할 경우 자동생성된다.

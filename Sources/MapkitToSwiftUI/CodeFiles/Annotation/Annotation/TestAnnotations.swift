@@ -5,13 +5,9 @@
 //  Created by 최준영 on 2023/11/16.
 //
 
-import SwiftUI
 import MapKit
 
-class SchoolAnnotation: NSObject, AnnotationType {
-    var annotationType: StringLiteralType {
-        NSStringFromClass(Self.self)
-    }
+class SchoolAnnotation: NSObject, AnnotationClassType {
     var coordinate: CLLocationCoordinate2D
     var title: String?
     var subtitle: String?
@@ -23,10 +19,7 @@ class SchoolAnnotation: NSObject, AnnotationType {
     }
 }
 
-class RestaurantAnnotation: NSObject, AnnotationType {
-    var annotationType: StringLiteralType {
-        NSStringFromClass(Self.self)
-    }
+class RestaurantAnnotation: NSObject, AnnotationClassType {
     var coordinate: CLLocationCoordinate2D
     var title: String?
     var subtitle: String?
