@@ -8,36 +8,12 @@
 import MapKit
 import SwiftUI
 
-/// Circular Imae Annotation의 데이터를 담고있는 MKAnnotation의 상위 타입이다.
-class CIAnnotationWithSwiftUI: NSObject, AnnotationClassType {
-    var coordinate: CLLocationCoordinate2D
-    var title: String?
-    var subtitle: String?
-    
-    //name for image resource
-    var imageName: String
-    
-    init(coordinate: CLLocationCoordinate2D, title: String? = nil, subtitle: String? = nil, imageName: String) {
-        self.coordinate = coordinate
-        self.title = title
-        self.subtitle = subtitle
-        self.imageName = imageName
-    }
-}
-
-
 /// SwiftUI View로 CIAnnotationViewWithSwiftUIView에서 UIView로 전환되어 사용된다.
 fileprivate struct CircleImageView: View {
-    var imageName: String
-    
-    var image: Image {
-        let path = Bundle.module.path(forResource: "japanStreet", ofType: "jpg")!
-        let uiImage = UIImage(named: path)!
-        return Image(uiImage: uiImage)
-    }
+    var uiImage: UIImage
 
     var body: some View {
-        image
+        Image(uiImage: uiImage)
             .resizable()
             .scaledToFit()
             .clipShape(Circle())
@@ -63,7 +39,6 @@ class CIAnnotationViewWithSwiftUIView: MKAnnotationView {
     }
     
     required init?(coder aDecoder: NSCoder) {
-        
         fatalError("init(coder:) has not been implemented!")
     }
     
@@ -71,7 +46,7 @@ class CIAnnotationViewWithSwiftUIView: MKAnnotationView {
         guard let imageAnnotation = annotation as? CIAnnotationWithSwiftUI else {
             preconditionFailure("잘못된 Annotation타입이 전달되었습니다.")
         }
-        guard let circularView = UIHostingController(rootView: CircleImageView(imageName: imageAnnotation.imageName)).view else {
+        guard let circularView = UIHostingController(rootView: CircleImageView(uiImage: imageAnnotation.uiImage)).view else {
             preconditionFailure("SwiftUI View가 UIView로 전환되지 못했습니다.")
         }
         
@@ -83,4 +58,3 @@ class CIAnnotationViewWithSwiftUIView: MKAnnotationView {
         ])
     }
 }
-

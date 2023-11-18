@@ -8,10 +8,10 @@
 import MapKit
 
 // MARK: - Custom MKAnnotation
-protocol AnnotationClassType: MKAnnotation {
+public protocol AnnotationClassType: MKAnnotation {
     var identifier: String { get }
 }
 
-extension AnnotationClassType {
+public extension AnnotationClassType {
     var identifier: String { NSStringFromClass(Self.self) }
 }

@@ -4,37 +4,42 @@ import MapKit
 
 
 // MARK: - Coordinator
-internal class MkMapViewCoordinator: NSObject, MKMapViewDelegate {
+internal class MkMapViewCoordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
     
     var mapView: MKMapView?
     
     override init() {
         super.init()
         registerAnnotation()
+        
+        // Closure등록
+        CJLocationManager.shared.registerUpdatingCenterClosure(closure: updateCenter(location:))
+        
+        CJLocationManager.shared.requestAuthorization()
     }
+    
     
     private func registerAnnotation() {
         guard let mapView = self.mapView else { return }
-        mapView.register(SchoolAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
-        mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(RestaurantAnnotationView.self))
+        
+        mapView.register(CIAnnotationViewWithSwiftUIView.self, forAnnotationViewWithReuseIdentifier: NSStringFromClass(CIAnnotationViewWithSwiftUIView.self))
     }
     
-    //TODO: SwiftUI뷰를 등록할 수 있도록 구현
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+    public func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
         let someAnnotation = annotation as! AnnotationClassType
         
         switch someAnnotation.identifier {
-        case NSStringFromClass(SchoolAnnotation.self):
-            return SchoolAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(SchoolAnnotationView.self))
-        case NSStringFromClass(RestaurantAnnotation.self):
-            return RestaurantAnnotationView(annotation: annotation, reuseIdentifier: NSStringFromClass(RestaurantAnnotationView.self))
         case NSStringFromClass(CIAnnotationWithSwiftUI.self):
             return CIAnnotationViewWithSwiftUIView(annotation: annotation, reuseIdentifier: NSStringFromClass(CIAnnotationViewWithSwiftUIView.self))
         default:
             return nil
         }
+    }
+    
+    /// User의 현재 위치로 center를 지정
+    func updateCenter(location: CLLocation) {
+        mapView?.region.center = location.coordinate
     }
 }
 
@@ -43,30 +48,28 @@ internal struct MapkitView: UIViewRepresentable {
     
     typealias UIViewType = MKMapView
     
-    init() { }
+    var center: CLLocationCoordinate2D
+    
+    var annotations: [AnnotationClassType]
+    
+    init(firstLocation: CLLocation, annotations: [AnnotationClassType]) {
+        self.annotations = annotations
+        self.center = firstLocation.coordinate
+    }
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         context.coordinator.mapView = mapView
         
-        // Annotation Data추가
-        let annotation1 = SchoolAnnotation(coordinate: CLLocationCoordinate2D(latitude: 37.5507563, longitude: 126.9254901))
-        annotation1.title = "Hongik"
-        annotation1.subtitle = "School"
+        // Set span
+        let mapCenterCoordinate = self.center
+        let cr = MKCoordinateRegion(center: mapCenterCoordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+        mapView.region = cr
+        mapView.isZoomEnabled = false
         
-        let annotation2 = RestaurantAnnotation(coordinate: CLLocationCoordinate2D(latitude: 37.5474489, longitude: 126.922586))
-        annotation2.title = "Ramen Truck"
-        annotation2.subtitle = "Restaurant"
-        
-        let annotation3 = CIAnnotationWithSwiftUI(coordinate: CLLocationCoordinate2D(latitude: 37.557527, longitude: 126.9244669), imageName: "japan_street")
-        
-        mapView.addAnnotations([
-            annotation1,
-            annotation2,
-            annotation3
-        ])
-        
+        // Add annotations
+        mapView.addAnnotations(self.annotations)
         
         return mapView
     }
@@ -79,15 +82,15 @@ internal struct MapkitView: UIViewRepresentable {
 }
 
 public struct CJMapkitView: View {
-    public init() { }
+    public var userLocation: CLLocation
+    public var annotations: [AnnotationClassType]
+    
+    public init(userLocation: CLLocation, annotations: [AnnotationClassType]) {
+        self.userLocation = userLocation
+        self.annotations = annotations
+    }
 
     public var body: some View {
-        MapkitView()
-    }
-}
-
-#Preview {
-    VStack {
-        CJMapkitView()
+        MapkitView(firstLocation: userLocation, annotations: annotations)
     }
 }
